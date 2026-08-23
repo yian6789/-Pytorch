@@ -61,7 +61,17 @@ plt.xlabel("x")
 plt.ylabel("y")
 plt.show()  
 
-    
+
+#手搓Gengerate
+def gengerate (self,token_sequ,max_lenth):#token_sequ为当前输入上下文，max_lenth为生成的最大长度
+    for _ in range(max_lenth):
+        token_inputs=token_sequ[:,-max_lenth:]#每次都只取最后个max_lenth个token作为输入
+        logits,loss=self.forward(token_inputs)#前向传播得到logits
+        logits=logits[:,-1,:] #在第二个维度（文本维度）切片得到得到最后一个token的logits（原始分数）
+        probs=torch.softmax(logits,dim=-1) #将logits转化为概率分布 （即对应词表中每个token的概率）
+        next_token=torch.multinomial(probs,num_samples=1)#logits  ->  softmax  ->  probs  ->  multinomial  ->  next_token
+        token_sequ=torch.cat((token_sequ,next_token),dim=1)#最后将生成的新token拼接到原先的token—sequences中，作为下一次的输入上下文
+    token_sequ=token_sequ[:,-max_lenth:]#最后更新最新的token—sequence
 
 
 
